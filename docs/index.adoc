@@ -29,8 +29,9 @@ This project will be the Front End that uses a simple form, that will post a JSO
 .Spring Initializr - http://start.spring.io[,window="_blank"]
 image:images/directory-ui.png[SpringInitializr, title="Spring Initializr"]
 +
-You can choose either Gradle or Maven. Click *_Generate Project_*
-3. Unzip and import the project in your favorite IDE.
+TIP: You can choose either Gradle or Maven. 
+
+3. Click *_Generate Project_*, this will download a ZIP file, unzip it wherever you like and import the project in your favorite IDE.
 
 
 === Directory Rest API Project
@@ -204,15 +205,25 @@ docker rm -f directory-ui
 .Using the https://hub.docker.com/_/mysql/
 [source,shell]
 ----
-docker pull mysql
+docker pull mysql:5.7
 ----
 +
 Run the image (this is for testing purposes)
 +
 [source,shell]
 ----
-docker run -d --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=pivotal mysql
+docker run -d --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=pivotal mysql:5.7
 ----
++
+You can test if the MySQL Server is up and running with (assuming you have a *_mysql_* client):
++
+[source,shell]
+----
+mysql --protocol=TCP -ppivotal -uroot
+
+mysql> show databases;
+----
+
 
 === Creating a Docker image for the Directory Rest app
 
@@ -265,6 +276,121 @@ It should be at least one person.
 docker rm -f directory-ui
 ----
 
+=== Using *kubectl* to Deploy the Apps to Kubernetes
+
+1. Create and run a *MYSQL* pod:
++
+.mysql-pod.json
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql
+  labels:
+    name: mysql
+spec:
+  containers: 
+    - name: mysql
+      image: mysql:5.7
+      imagePullPolicy: Never
+      env: 
+        - name: "MYSQL_ROOT_PASSWORD"
+          value: "pivotal"
+      ports: 
+        - containerPort: 3306
+----
++
+Create the POD
++
+[source,shell]
+----
+kubectl create -f mysql-pod.json
+----
++
+Verify is running
++
+[source,shell]
+----
+kubectl get pod/mysql
+----
+
+2. Create the *_testdb_* database by exposing the MySQL so it can be accesible.
++
+[source,shell]
+----
+kubectl exec -it mysql bash
+
+root@mysql:/# mysql -ppivotal
+
+mysql> create database testdb;
+----
+
+3. Expose the *MySQL* as Service:
++
+.mysql-service.json
+[source,shell]
+----
+kind: Service
+apiVersion: v1
+metadata:
+  name: mysql
+spec:
+  selector:
+    app: mysql
+  ports:
+  - protocol: TCP
+    port: 3306
+    targetPort: 3306
+----
+Create the Service
++
+[source,shell]
+----
+kubectl create -f mysql-service.json
+----
++
+Verify is running
++
+[source,shell]
+----
+kubectl get services/mysql
+----
+
+3. Run the *directory-rest* pod:
++
+.directory-rest-pod.json
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: directory-rest
+  labels:
+    name: directory-rest
+spec:
+  containers: 
+    - name: directory-rest
+      image: directory-rest
+      imagePullPolicy: Never
+      env: 
+        - name: "SPRING_DATASOURCE_USERNAME"
+          value: "root"
+        - name: "SPRING_DATASOURCE_PASSWORD"
+          value: "pivotal"
+        - name: "SPRING_DATASOURCE_DRIVER_CLASS_NAME"
+          value: "com.mysql.jdbc.Driver"
+        - name: "SPRING_DATASOURCE_URL"
+          value: "jdbc:mysql://mysql:3306/testdb?autoReconnect=true&useSSL=false"
+      ports: 
+        - containerPort: 9090
+----
++
+Create the POD
++
+[source,shell]
+----
+kubectl create -f mysql-pod.json
+----
 
 
-docker run -d -p 8080:8080 -e DIRECTORY_SERVICE_URI=http://172.17.0.3:9090/persons directory-ui

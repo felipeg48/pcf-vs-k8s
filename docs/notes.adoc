@@ -1,0 +1,43 @@
+= Useful Commands
+:docinfo: shared
+:toc: macro
+:toc-title: Labs
+:linkattrs:
+
+
+toc::[]
+
+
+== Minikube using a Mac
+
+1. To start https://kubernetes.io/docs/setup/minikube/[Minikube, window="_blank"]
++
+[source,shell]
+----
+minikube start --vm-driver=hyperkit
+----
+
+2. *[Optional]* Setting the Minikube Docker registry to your host 
++
+[source,shell]
+----
+eval $(minikube docker-env)
+----
+
+== Docker Commands
+
+
+=== Testing the Directory UI locally. Connecting to the Directory Rest.
+
+Getting the IP of a running container
+[source,shell]
+----
+docker inspect --format '{{ .NetworkSettings.IPAddress }}' <docker-image-id>
+----
+
+
+The following command will start a Docker using an environment variable to connect to the Directory Rest:
+[source,shell]
+----
+docker run -d -p 8080:8080 -e DIRECTORY_SERVICE_URI=http://172.17.0.3:9090/persons directory-ui
+----
