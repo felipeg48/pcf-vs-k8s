@@ -33,6 +33,7 @@ TIP: You can choose either Gradle or Maven.
 
 3. Click *_Generate Project_*, this will download a ZIP file, unzip it wherever you like and import the project in your favorite IDE.
 
+4. Add the following 
 
 === Directory Rest API Project
 
@@ -357,7 +358,7 @@ Verify is running
 kubectl get services/mysql
 ----
 
-3. Run the *directory-rest* pod:
+4. Create the *directory-rest* pod:
 +
 .directory-rest-pod.json
 [source,yaml]
@@ -390,7 +391,63 @@ Create the POD
 +
 [source,shell]
 ----
-kubectl create -f mysql-pod.json
+kubectl create -f directory-rest-pod.json
 ----
 
+5. Expose the *directory-rest* as a Service:
++
+.directory-rest-service.json
+[source,yaml]
+----
+kind: Service
+apiVersion: v1
+metadata:
+  name: directory-rest
+spec:
+  selector:
+    app: directory-rest
+  ports:
+  - protocol: TCP
+    port: 9090
+    targetPort: 9090
+----
++
+Create the Service
++
+[source,shell]
+----
+kubectl create -f directory-rest-service.json
+----
+
+6. Create the *directory-ui* pod:
++
+.directory-rest-pod.json
+[source,yaml]
+----
+apiVersion: v1
+kind: Pod
+metadata:
+  name: directory-ui
+  labels:
+    name: directory-ui
+spec:
+  containers: 
+    - name: directory-ui
+      image: directory-ui
+      imagePullPolicy: Never
+      env: 
+        - name: "DIRECTORY_SERVICE_URI"
+          value: "http://directory-rest:9090/persons"
+      ports: 
+        - containerPort: 8080
+----
++
+Create the POD
++
+[source,shell]
+----
+kubectl create -f directory-ui-pod.json
+----
+
+7. Expose/Access the *directory-ui* app
 
