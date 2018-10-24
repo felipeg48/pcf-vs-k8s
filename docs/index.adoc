@@ -3,6 +3,7 @@
 :toc: macro
 :toc-title: Labs
 :linkattrs:
+:lab: ../labs
 
 The idea of this workshop is to show the differences of using PAS/PKS vs. K8s. This is only for education purpose only.
 
@@ -33,7 +34,89 @@ TIP: You can choose either Gradle or Maven.
 
 3. Click *_Generate Project_*, this will download a ZIP file, unzip it wherever you like and import the project in your favorite IDE.
 
-4. Add the following 
+4. Add the following classes:
++
+.Person.java
+[source,java]
+----
+include::{lab}/directory-ui/src/main/java/io/pivotal/demos/directoryui/Person.java[]
+----
++
+This class is the main base model.
++
+TIP: The *Person.java* class is using *Lombok*, in order to get all the features, you can install it for your IDE https://projectlombok.org/[here, window="_blank"]
++
+.DirectoryProperties.java
+[source,java]
+----
+include::{lab}/directory-ui/src/main/java/io/pivotal/demos/directoryui/DirectoryProperties.java[]
+----
++
+This class will hold the *directory.service-uri* property that will be used to connect to the *directory-rest* app later on.
++
+.DirectoryController.java
+[source,java]
+----
+include::{lab}/directory-ui/src/main/java/io/pivotal/demos/directoryui/DirectoryController.java[]
+----
+<1> This is the *RestTemplate* utility client class that will be use to call a remote Rest API, in this case the *directory-rest* microservice.
+<2> *@GetMapping* marks the method that will get all the incoming request at the */* path. See that this method will return a *ModelAndView* meaning that it will know what view to render (in this case *home*).
+<3> Here the *template* instance is using the *getForObject* method that will call the *directory-rest* and it will get back a collection of person objects.
+<4> Returns the *ModelAndView* in this case adding the model (*people* result) and the view (*home* page) 
+<5> *@PostMapping* marks the method that will receive all the HTTP POSTs that contains a *_JSON_* object, converting it to a *Person* instance.
+<6> Here the *template* is sending a POST to the *directory-rest* microservice.
+<7> If any exception happen (like no connection or any other exception), this method will catch it and redirect to the home page.
++
+.DirectoryConfiguration.java
+[source,java]
+----
+include::{lab}/directory-ui/src/main/java/io/pivotal/demos/directoryui/DirectoryConfiguration.java[]
+----
++
+This class just enable the properties with the *@EnableConfigurationProperties* tag.
+
+5. In the *src/main/resources/template* folder, create two new directories: *layout* and *views* and add the following files:
++
+.src/main/resources/template/layout/main.tpl
+[source,groovy]
+----
+include::{lab}/directory-ui/src/main/resources/templates/layout/main.tpl[]
+----
++
+This is a *Groovy Template*, that allows to use a *DSL* (Domain Specific Language) using a *MarkupTemplateEngine* logic, less verbose that other engines (In my opinion).
+Analyze this file and undestand the syntax.
++
+TIP: If you want to know more about the *Groovy Template Engines*, you can get some reference http://docs.groovy-lang.org/docs/next/html/documentation/template-engines.html#_the_markuptemplateengine[here, window="_blank"].
++
+.src/main/resources/template/views/home.tpl
+[source,groovy]
+----
+include::{lab}/directory-ui/src/main/resources/templates/views/home.tpl[]
+----
++
+This is the *home* page. Analyze it and review the syntax. See that here it will collect the information from the *model* (*_people_*) that comes from the *_home()_* method in the *DirectoryController* class.
+
+6. In the *src/main/resources/* folder you will find the *application.properties* file. Modify its contet to look like the following:
++
+.src/main/resources/application.properties
+[source,properties]
+----
+include::{lab}/directory-ui/src/main/resources/application.properties[]
+----
++
+As you can see the *directory.service-uri* property is poiting to the *directory-rest* microservice.
+
+7. Now you can test it. Running in your IDE or using the command line with:
++
+[source,shell]
+----
+./mvnw clean spring-boot:run
+----
++
+If you go to the http://localhost:8080[^] you will see the following:
++
+image:images/directory-ui-app.png[Directory UI, title="Directory UI"]
+
 
 === Directory Rest API Project
 
@@ -50,8 +133,88 @@ TIP: You can choose either Gradle or Maven.
 .Spring Initializr - http://start.spring.io[,window="_blank"]
 image:images/directory-rest.png[SpringInitializr, title="Spring Initializr"]
 +
-You can choose either Gradle or Maven. Click *_Generate Project_*
-3. Unzip and import the project in your favorite IDE.
+TIP: You can choose either Gradle or Maven. 
+
+3. Click *_Generate Project_*, this will download a ZIP file, unzip it wherever you like and import the project in your favorite IDE.
+
+4. Add the following classes:
++
+.Person.java
+[source,java]
+----
+include::{lab}/directory-rest/src/main/java/io/pivotal/demos/directoryrest/Person.java[]
+----
++
+This class is the main base model. See that the class is also using *@Entity* and *@Id* annotations that make the class to be persistent into the Database.
++
+.PersonRepository.java
+[source,java]
+----
+include::{lab}/directory-rest/src/main/java/io/pivotal/demos/directoryrest/PersonRepository.java[]
+----
++
+This class extends from the *CrudRepository* interface that uses generics. Is necessary to add the domain class (*Person*) and the *Id* type, in this case a String.
++
+.DirectoryController.java
+[source,java]
+----
+include::{lab}/directory-rest/src/main/java/io/pivotal/demos/directoryrest/DirectoryController.java[]
+----
++
+This class uses the *PersonRepository* instance to access the data. Analyze the class.
++
+.DirectoryConfig.java
+[source,java]
+----
+include::{lab}/directory-rest/src/main/java/io/pivotal/demos/directoryrest/DirectoryConfig.java[]
+----
++
+This is a configuration class where is declaring a *_Spring Bean_*, the *CommandLineRunner* interface that will be execute before the app starts. 
+And in this case, the method *init* is using the *PersonRepository* as parameter to save a new *Person*.
+
+5. In the *src/main/resources/static* folder, create a simple *index.html* page:
++
+[source,html]
+----
+include::{lab}/directory-rest/src/main/resources/static/index.html[]
+----
++
+As you can see there is nothing special about it, just a link to the */persons* endpoint.
+
+6. In the *src/main/resources/* folder you will find the *application.properties* file. Modify its contet to look like the following:
++
+.src/main/resources/application.properties
+[source,properties]
+----
+include::{lab}/directory-rest/src/main/resources/application.properties[]
+----
++
+See that this app will be running in the _port_ *_9090_* and there are two *spring.datasource** related properties that will help to create a table based on the domain class (*Person*).
+
+7. Now you can test it. Running in your IDE or using the command line with:
++
+[source,shell]
+----
+./mvnw clean spring-boot:run
+----
++
+If you go to the http://localhost:9090/persons[^] you will see the following:
++
+image:images/directory-rest-app.png[Directory Rest, title="Directory Rest"]
+
+8. If you refresh the http://localhost:8080[^] you will see the following:
++
+image:images/directory-ui-ok.png[Directory UI, title="Directory UI"]
+
+
+[NOTE]
+====
+*Congratulations* you just hve creating two microservices and connect them together!!
+
+====
+
+WARNING: But how did the *directory-rest* worked? How the data got persisted?
+
 
 
 

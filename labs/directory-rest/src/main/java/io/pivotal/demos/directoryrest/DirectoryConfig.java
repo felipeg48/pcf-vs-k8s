@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DirectoryConfig {
 
-    @Bean
+    @Bean  
     public CommandLineRunner init(PersonRepository personRepository){
         return args -> {
             personRepository.save(new Person("mike@example.com","Mike","1-800-JAVA"));
