@@ -1,0 +1,19 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.8'
+    }
+}
+
+apply plugin: 'org.asciidoctor.convert'
+
+
+asciidoctor {
+  sourceDir = file('docs')
+  outputDir = file('build/docs')
+  attributes   'source-highlighter': 'coderay', 'toc': 'left'
+
+}
