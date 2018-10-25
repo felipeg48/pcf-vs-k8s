@@ -4,6 +4,7 @@
 :toc-title: Labs
 :linkattrs:
 :lab: ../labs
+:icons: font
 
 The idea of this workshop is to show the differences of using PAS/PKS vs. K8s. This is only for education purpose only.
 
