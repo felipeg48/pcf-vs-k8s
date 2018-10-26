@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: directory-rest
+  labels:
+    name: directory-rest
+spec:
+  containers:
+    - name: directory-rest
+      image: directory-rest
+      imagePullPolicy: Never
+      env:
+        - name: "SPRING_DATASOURCE_USERNAME"
+          value: "root"
+        - name: "SPRING_DATASOURCE_PASSWORD"
+          value: "pivotal"
+        - name: "SPRING_DATASOURCE_DRIVER_CLASS_NAME"
+          value: "com.mysql.jdbc.Driver"
+        - name: "SPRING_DATASOURCE_URL"
+          value: "jdbc:mysql://mysql:3306/testdb?autoReconnect=true&useSSL=false"
+      ports:
+        - containerPort: 9090
