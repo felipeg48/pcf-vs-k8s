@@ -445,7 +445,7 @@ docker rm -f directory-ui
 
 1. Create and run a *MYSQL* pod:
 +
-.mysql-pod.json
+.mysql-pod.yaml
 [source,yaml]
 ----
 apiVersion: v1
@@ -470,7 +470,7 @@ Create the POD
 +
 [source,shell]
 ----
-kubectl create -f mysql-pod.json
+kubectl create -f mysql-pod.yaml
 ----
 +
 Verify is running
@@ -493,7 +493,7 @@ mysql> create database testdb;
 
 3. Expose the *MySQL* as Service:
 +
-.mysql-service.json
+.mysql-service.yaml
 [source,shell]
 ----
 kind: Service
@@ -512,7 +512,7 @@ Create the Service
 +
 [source,shell]
 ----
-kubectl create -f mysql-service.json
+kubectl create -f mysql-service.yaml
 ----
 +
 Verify is running
@@ -524,7 +524,7 @@ kubectl get services/mysql
 
 4. Create the *directory-rest* pod:
 +
-.directory-rest-pod.json
+.directory-rest-pod.yaml
 [source,yaml]
 ----
 apiVersion: v1
@@ -555,12 +555,12 @@ Create the POD
 +
 [source,shell]
 ----
-kubectl create -f directory-rest-pod.json
+kubectl create -f directory-rest-pod.yaml
 ----
 
 5. Expose the *directory-rest* as a Service:
 +
-.directory-rest-service.json
+.directory-rest-service.yaml
 [source,yaml]
 ----
 kind: Service
@@ -580,12 +580,12 @@ Create the Service
 +
 [source,shell]
 ----
-kubectl create -f directory-rest-service.json
+kubectl create -f directory-rest-service.yaml
 ----
 
 6. Create the *directory-ui* pod:
 +
-.directory-rest-pod.json
+.directory-rest-pod.yaml
 [source,yaml]
 ----
 apiVersion: v1
@@ -610,7 +610,7 @@ Create the POD
 +
 [source,shell]
 ----
-kubectl create -f directory-ui-pod.json
+kubectl create -f directory-ui-pod.yaml
 ----
 
 7. Expose/Access the *directory-ui* app
