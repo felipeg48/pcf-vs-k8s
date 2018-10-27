@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: directory-ui
+spec:
+  selector:
+    app: directory-ui
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080

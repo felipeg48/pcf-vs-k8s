@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: directory-ui
+  labels:
+    name: directory-ui
+spec:
+  containers:
+    - name: directory-ui
+      image: directory-ui
+      imagePullPolicy: Never
+      env:
+        - name: "DIRECTORY_SERVICE_URI"
+          value: "http://directory-rest:9090/persons"
+      ports:
+        - containerPort: 8080
